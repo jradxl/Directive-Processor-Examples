@@ -1,0 +1,590 @@
+
+<#@ assembly name="System.Xml" #>
+<#@ template debug="true" #>
+<#@ output extension=".html" #>
+<# //This will call the custom directive processor. #>
+<#@ XMLDirective Processor="XMLDirectiveProcessor" FileName="<InsertPath>\UseCases.xml" #>
+<# //Uncomment this line if you want to see the generated transformation class. #>
+<# //System.Diagnostics.Debugger.Break(); #>
+<# //This will use the results of the directive processor. #>
+<# //The directive processor has read the XML and stored it in Document0. #>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+<title>Use Case</title>
+</head>
+<body lang="en-us">
+
+<#
+//Get the root UseCases node
+XmlNode node = Document0.DocumentElement.SelectSingleNode("UseCases");
+// iterate through each child UseCase
+foreach (XmlNode member in node.ChildNodes)
+{
+#>
+<p>
+<table border="1" cellspacing="0" cellpadding="5" width="800" >
+<thead>
+<tr>
+<td colspan="2" valign="top" align="center">
+<p><strong>USE CASE</strong></p>
+</td>
+</tr>
+</thead>
+
+<#
+// iterate through each child element of the use case
+foreach (XmlNode child in member.ChildNodes)
+{
+// emit different output based on the child element
+switch(child.Name)
+{
+case "Project":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Project:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "UseCaseName":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Name:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "UseCaseNumber":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Number:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "UseCaseAuthor":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Author:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "LastRevised":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Last Revised:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "Summary":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Summary:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "Actors":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Actors:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through the child elements
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "Preconditions":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Preconditions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through the child elements
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "BasicCourse":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Basic Course:</strong></p>
+</td>
+<td valign="top">
+<p>&nbsp;</p>
+</td>
+</tr>
+
+<#
+// iterate through the child elements
+foreach(XmlNode childnode in child.ChildNodes)
+{
+// emit different output based on the child element name
+switch(childnode.Name)
+{
+case "InitializationSteps":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Initialization Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode step in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(step.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "ProcessSteps":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Process Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode step in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(step.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "TerminationSteps":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Termination Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode step in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(step.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+}
+}
+break;
+case "Exceptions":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Exceptions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "Postconditions":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Postconditions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "ScreensReferenced":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Screens Referenced:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "SystemInterfaces":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>System Interfaces:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "DBMSInterfaces":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>DBMS Interfaces:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "Issues":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Issues:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child issue
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<#
+// iterate through each child element within the issue
+foreach(XmlNode issue in childnode.ChildNodes)
+{
+// emit different output based on the element name
+switch(issue.Name)
+{
+case "Status":
+Write("{0,11}: {1}<br/>", "Status", issue.InnerText);
+break;
+case "OpenDate":
+Write("{0,11}: {1}<br/>", "Open Date", issue.InnerText);
+break;
+case "CloseDate":
+Write("{0,11}: {1}<br/>", "Close Date", issue.InnerText);
+break;
+case "Owner":
+Write("{0,11}: {1}<br/>", "Owner", issue.InnerText);
+break;
+case "Title":
+Write("{0,11}: {1}<br/>", "Title", issue.InnerText);
+break;
+case "Description":
+Write("{0,11}: {1}<br/>", "Description", issue.InnerText);
+break;
+case "Comments":
+Write("{0,11}:<br/>", "Comments");
+// iterate through each comment
+foreach(XmlNode comment in issue.ChildNodes)
+{
+// iterate through each element of the child
+foreach(XmlNode innercomment in comment.ChildNodes)
+{
+// emit different output based on the element name
+switch(innercomment.Name)
+{
+case "Commenter":
+Write("{0,11}: {1}<br/>", "Commenter", innercomment.InnerText);
+break;
+case "DateEntered":
+Write("{0,11}: {1}<br/>", "DateEntered", innercomment.InnerText);
+break;
+case "CommentText":
+Write("{0,11}: {1}<br/><br/>", "Comment", innercomment.InnerText);
+break;
+} // end comment element switch
+} // end comment element foreach
+} // end comment foreach
+break;
+} // end issue element switch
+} // end issue element foreach
+#>
+
+</li>
+<#
+} // end issues child foreach
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "Assumptions":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Assumptions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+} // end assumptions child foreach
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+} // end UseCaseElement switch
+} // end UseCaseElement foreach
+
+#>
+</table>
+<p>&nbsp;</p>
+</p>
+
+<#
+} // end UseCase foreach
+#>
+
+</body>
+</html>

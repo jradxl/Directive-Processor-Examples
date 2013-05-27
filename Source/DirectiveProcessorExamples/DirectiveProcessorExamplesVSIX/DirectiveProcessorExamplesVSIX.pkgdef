@@ -1,0 +1,25 @@
+﻿[$RootKey$\TextTemplating]
+[$RootKey$\TextTemplating\DirectiveProcessors]
+[$RootKey$\TextTemplating\DirectiveProcessors\CoolDirective]
+@="Microsoft Custom Directive Processor"
+"Class"="CoolDirective.CoolDirectiveProcessor"
+"CodeBase"="$PackageFolder$\CoolDirectiveProcessor.dll"
+[$RootKey$\TextTemplating]
+[$RootKey$\TextTemplating\DirectiveProcessors]
+[$RootKey$\TextTemplating\DirectiveProcessors\JaDALProjectDirective]
+@="JaDAL Directive Processors"
+"Class"="BenjaminSchroeter.Dsl.DirectiveProcessors.VsProjectFileDirectiveProcessor"
+"CodeBase"="$PackageFolder$\JaDALDirectiveProcessors.dll"
+[$RootKey$\TextTemplating]
+[$RootKey$\TextTemplating\DirectiveProcessors]
+[$RootKey$\TextTemplating\DirectiveProcessors\JaDALFileDirective]
+@="JaDAL Directive Processors"
+"Class"="BenjaminSchroeter.Dsl.DirectiveProcessors.XmlFileDirectiveProcessor"
+"CodeBase"="$PackageFolder$\JaDALDirectiveProcessors.dll"
+[$RootKey$\TextTemplating]
+[$RootKey$\TextTemplating\DirectiveProcessors]
+[$RootKey$\TextTemplating\DirectiveProcessors\XMLDirective]
+@="Jim Lavin XML Directive Processor"
+"Class"="XMLDirective.XMLDirectiveProcessor"
+"CodeBase"="$PackageFolder$\XMLDirectiveProcessor.dll"
+

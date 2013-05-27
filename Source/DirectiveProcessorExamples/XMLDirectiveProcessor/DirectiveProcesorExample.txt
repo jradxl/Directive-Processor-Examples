@@ -1,0 +1,1387 @@
+
+Jim Lavin
+http://jimlavin.net/articles/how-to-use-a-t4-template-to-generate-a-use-case-document-from-an-xml-data-file/
+
+In this article I’ll show how to use T4 templates to generate a Use Case document from an XML data file.
+
+To do this we can invoke a Custom Directive from within a Text Template to parse the XML file and reformat in to an HTML Document.
+The MSDN’s DSL Tools documentation provides a great example on how to create a Custom Text Template Directive Processor
+
+I’ve modified the class, provided in the sample, a little to just include the code required to use the XML DOM:
+
+using System;
+using System.CodeDom;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
+using Microsoft.VisualStudio.TextTemplating;
+
+namespace XMLDirectiveProcessor
+{
+class XMLDirectiveProcessor : DirectiveProcessor
+{
+//this buffer stores the code that is added to the
+//generated transformation class after all the processing is done
+//———————————————————————
+private StringBuilder codeBuffer;
+
+//Using a Code Dom Provider creates code for the
+//generated transformation class in either Visual Basic or C#.
+//If you want your directive processor to support only one language, you
+//can hard code the code you add to the generated transformation class.
+//In that case, you do not need this field.
+//————————————————————————–
+private CodeDomProvider codeDomProvider;
+
+//this stores the full contents of the text template that is being
+
+processed
+//————————————————————————–
+private String templateContents;
+
+//These are the errors that occur during processing. The engine passes
+//the errors to the host, and the host can decide how to display them,
+//for example the the host can display the errors in the UI
+//or write them to a file.
+//———————————————————————
+private CompilerErrorCollection errorsValue;
+
+public new CompilerErrorCollection Errors
+{
+get { return errorsValue; }
+}
+
+//Each time this directive processor is called, it creates a new property.
+//We count how many times we are called, and append “n” to each new
+//property name. The property names are therefore unique.
+
+
+//————————————————————————-
+private int directiveCount = 0;
+
+public override void Initialize(ITextTemplatingEngineHost host)
+{
+//we do not need to do any initialization work
+}
+
+public override void StartProcessingRun(CodeDomProvider languageProvider,
+
+
+String templateContents, CompilerErrorCollection errors)
+{
+//the engine has passed us the language of the text template
+//we will use that language to generate code later
+//———————————————————-
+this.codeDomProvider = languageProvider;
+this.templateContents = templateContents;
+this.errorsValue = errors;
+
+this.codeBuffer = new StringBuilder();
+}
+
+//Before calling the ProcessDirective method for a directive, the
+//engine calls this function to see whether the directive is supported.
+//Notice that one directive processor might support many directives.
+//———————————————————————
+public override bool IsDirectiveSupported(string directiveName)
+{
+if (string.Compare(directiveName, “XMLDirective”,
+
+
+StringComparison.OrdinalIgnoreCase) == 0)
+{
+return true;
+}
+
+return false;
+}
+
+public override void ProcessDirective(string directiveName,
+
+
+IDictionary<string, string> arguments)
+{
+if (string.Compare(directiveName, “XMLDirective”,
+
+StringComparison.OrdinalIgnoreCase) == 0)
+{
+string fileName;
+
+if (!arguments.TryGetValue(“FileName”, out fileName))
+{
+throw new DirectiveProcessorException(“Required argument
+
+
+‘FileName’ not specified.”);
+}
+
+if (string.IsNullOrEmpty(fileName))
+{
+throw new DirectiveProcessorException(“Argument ‘FileName’ is
+
+
+null or empty.”);
+}
+
+//Now we add code to the generated transformation class.
+//This directive supports either Visual Basic or C#,
+
+
+//so we must use the
+//System.CodeDom to create the code.
+//If a directive supports only one language, you can
+
+
+//hard code the code.
+//—————————————————————–
+
+CodeMemberField documentField = new CodeMemberField();
+
+documentField.Name = “document” + directiveCount + “Value”;
+documentField.Type = new CodeTypeReference(typeof(XmlDocument));
+documentField.Attributes = MemberAttributes.Private;
+
+CodeMemberProperty documentProperty = new CodeMemberProperty();
+
+documentProperty.Name = “Document” + directiveCount;
+documentProperty.Type = new CodeTypeReference(typeof(XmlDocument));
+documentProperty.Attributes = MemberAttributes.Public;
+documentProperty.HasSet = false;
+documentProperty.HasGet = true;
+
+CodeExpression fieldName = new CodeFieldReferenceExpression(new
+
+
+CodeThisReferenceExpression(), documentField.Name);
+CodeExpression booleanTest = new CodeBinaryOperatorExpression
+
+(fieldName, CodeBinaryOperatorType.IdentityEquality, new
+
+
+CodePrimitiveExpression(null));
+CodeExpression rightSide = new CodeMethodInvokeExpression(new
+
+
+CodeTypeReferenceExpression(“XmlReaderHelper”), “ReadXml”, new
+
+
+CodePrimitiveExpression(fileName));
+CodeStatement[] thenSteps = new CodeStatement[] { new
+
+
+CodeAssignStatement(fieldName, rightSide) };
+
+CodeConditionStatement ifThen = new CodeConditionStatement
+
+
+(booleanTest, thenSteps);
+documentProperty.GetStatements.Add(ifThen);
+
+CodeStatement s = new CodeMethodReturnStatement(fieldName);
+documentProperty.GetStatements.Add(s);
+
+CodeGeneratorOptions options = new CodeGeneratorOptions();
+options.BlankLinesBetweenMembers = true;
+options.IndentString = ” “;
+options.VerbatimOrder = true;
+options.BracingStyle = “C”;
+
+using (StringWriter writer = new StringWriter(codeBuffer,
+
+
+CultureInfo.InvariantCulture))
+{
+codeDomProvider.GenerateCodeFromMember(documentField, writer,
+
+options);
+codeDomProvider.GenerateCodeFromMember(documentProperty,
+
+
+writer, options);
+}
+
+}
+//end XMLDirective
+
+//Track how many times the processor has been called.
+//—————————————————————–
+directiveCount++;
+
+}
+//end ProcessDirective
+
+public override void FinishProcessingRun()
+{
+this.codeDomProvider = null;
+
+//important: do not do this:
+//the get methods below are called after this method
+//and the get methods can access this field
+//—————————————————————–
+//this.codeBuffer = null;
+}
+
+public override string GetPreInitializationCodeForProcessingRun()
+{
+//Use this method to add code to the start of the
+//Initialize() method of the generated transformation class.
+//We do not need any pre-initialization, so we will just return “”.
+//—————————————————————–
+//GetPreInitializationCodeForProcessingRun runs before the
+//Initialize() method of the base class.
+//—————————————————————–
+return String.Empty;
+}
+
+public override string GetPostInitializationCodeForProcessingRun()
+{
+//Use this method to add code to the end of the
+//Initialize() method of the generated transformation class.
+//We do not need any post-initialization, so we will just return “”.
+//——————————————————————
+//GetPostInitializationCodeForProcessingRun runs after the
+//Initialize() method of the base class.
+//—————————————————————–
+return String.Empty;
+}
+
+public override string GetClassCodeForProcessingRun()
+{
+//Return the code to add to the generated transformation class.
+//—————————————————————–
+return codeBuffer.ToString();
+}
+
+public override string[] GetReferencesForProcessingRun()
+{
+//This returns the references that we want to use when
+//compiling the generated transformation class.
+//—————————————————————–
+//We need a reference to this assembly to be able to call
+//XmlReaderHelper.ReadXml from the generated transformation class.
+//—————————————————————–
+return new string[]
+{
+“System.Xml”,
+this.GetType().Assembly.Location
+};
+}
+
+public override string[] GetImportsForProcessingRun()
+{
+//This returns the imports or using statements that we want to
+//add to the generated transformation class.
+//—————————————————————–
+//We need XMLDirectiveProcessor to be able to call
+
+
+//XmlReaderHelper.ReadXml
+//from the generated transformation class.
+//—————————————————————–
+return new string[]
+{
+“System.Xml”,
+“XMLDirectiveProcessor”
+};
+}
+}
+//end class XMLDirectiveProcessor
+
+//————————————————————————-
+// the code that we are adding to the generated transformation class
+// will call this method
+//————————————————————————-
+public static class XmlReaderHelper
+{
+public static XmlDocument ReadXml(string fileName)
+{
+XmlDocument d = new XmlDocument();
+
+using (XmlTextReader reader = new XmlTextReader(fileName))
+{
+try
+{
+d.Load(reader);
+}
+catch (System.Xml.XmlException e)
+{
+throw new DirectiveProcessorException(“Unable to read
+
+
+the XML file.”, e);
+}
+}
+return d;
+}
+}
+}
+
+This class is part of a C# Class Library that can be used by the Text Template Engine inside of Visual Studio. In order to get Visual Studio to recognize the custom directive you need to add a registry entry. I’ve included a sample below:
+
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\9.0\TextTemplating\
+
+DirectiveProcessors\XMLDirectiveProcessor]
+“Class”=”XMLDirectiveProcessor.XMLDirectiveProcessor”
+“CodeBase”=”<YourPath>\\XMLDirectiveProcessor\\bin\\Debug\\XMLDirectiveProcessor.dll”
+
+Next I created a new Class Library Project to use as a test harness for the Custom Directive Processor. I then created an XML file to hold the Use Case data. Below is the data I’ll use:
+
+<?xml version=“1.0“ encoding=“utf-8“ ?>
+
+<Doc>
+
+<UseCases>
+
+  <UseCase>
+
+    <Project>Delivery Service</Project>
+
+    <UseCaseName>Login to Account</UseCaseName>
+
+    <UseCaseNumber>UC001</UseCaseNumber>
+
+    <UseCaseAuthor>Jim Lavin</UseCaseAuthor>
+
+    <LastRevised>11/10/2003</LastRevised>
+
+    <Summary>
+
+      <![CDATA[Used to authenticate and identify the user with the web 
+
+      application.]]>
+
+    </Summary>
+
+    <Actors>
+
+      <Actor>Sender</Actor>
+
+      <Actor>Delivery Clerk</Actor>
+
+      <Actor>Courier</Actor>
+
+      <Actor>SuD</Actor>
+
+      <Actor>DBMS</Actor>
+
+    </Actors>
+
+    <Preconditions>
+
+      <Precondition>
+
+        <![CDATA[The user's information must exist in the DBMS.]]>
+
+      </Precondition>
+
+    </Preconditions>
+
+    <BasicCourse>
+
+      <InitializationSteps>
+
+        <InitializationStep>
+
+          <![CDATA[The user navigates to the main web page.]]>
+
+        </InitializationStep>
+
+      </InitializationSteps>
+
+      <ProcessSteps>
+
+        <ProcessStep>
+
+          <![CDATA[The user enters his/her email address in the Email field.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The user enters his/her password in the Password field.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The user clicks on the Submit icon.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD validates that the email address and password 
+
+           have been entered.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD queries the User Table for the user credentials.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD creates an instance of a User object stores it in the 
+
+           Session State.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD displays the message "Welcome, User Name" in place of 
+
+           the login fields.]]>
+
+        </ProcessStep>
+
+      </ProcessSteps>
+
+      <TerminationSteps>
+
+        <TerminationStep>
+
+          <![CDATA[The SuD updates the user menu with appropriate menu options.]]>
+
+        </TerminationStep>
+
+      </TerminationSteps>
+
+    </BasicCourse>
+
+    <Exceptions>
+
+      <Exception>
+
+        <![CDATA[Either the email address or password has not been entered. The 
+
+         SuD redisplays the web page with an error indicating the missing 
+
+         field.]]>
+
+      </Exception>
+
+      <Exception>
+
+        <![CDATA[The SuD cannot validate the user credentials. The SuD 
+
+         redirects the user to an error page indicating the information 
+
+         that is incorrect.]]>
+
+      </Exception>
+
+    </Exceptions>
+
+    <Postconditions>
+
+      <Postcondition>
+
+        <![CDATA[A valid user object has been stored to the Session State.]]>
+
+      </Postcondition>
+
+      <Postcondition>
+
+        <![CDATA[The welcome message is displayed.]]>
+
+      </Postcondition>
+
+      <Postcondition>
+
+        <![CDATA[The proper menu is displayed for the user.]]>
+
+      </Postcondition>
+
+    </Postconditions>
+
+    <ScreensReferenced>
+
+      <Screen>Login Page</Screen>
+
+    </ScreensReferenced>
+
+    <SystemInterfaces>
+
+      <SystemInterface>DBMS</SystemInterface>
+
+    </SystemInterfaces>
+
+    <DBMSInterfaces>
+
+      <DBMSInterface>User Table</DBMSInterface>
+
+    </DBMSInterfaces>
+
+    <Issues>
+
+      <Issue>
+
+        <Status>Closed</Status>
+
+        <OpenDate>11/01/2003</OpenDate>
+
+        <CloseDate>11/02/2003</CloseDate>
+
+        <Owner>Jim Lavin</Owner>
+
+        <Title>Need to add fields to User Table</Title>
+
+        <Description>
+
+          <![CDATA[Need to add fields for the user's email address and 
+
+           password to the user table along with the appropriate indexes.]]>
+
+        </Description>
+
+        <Comments>
+
+          <Comment>
+
+            <Commenter>Jim Lavin</Commenter>
+
+            <DateEntered>11/02/2003</DateEntered>
+
+            <CommentText>
+
+              <![CDATA[Added the requested fields to the user table 
+
+               definition.]]>
+
+            </CommentText>
+
+          </Comment>
+
+        </Comments>
+
+      </Issue>
+
+    </Issues>
+
+    <Assumptions>
+
+      <Assumption>
+
+        <![CDATA[All users who access the system will have access 
+
+         to a web browser.]]>
+
+      </Assumption>
+
+    </Assumptions>
+
+  </UseCase>
+
+  <UseCase>
+
+    <Project>Delivery Service</Project>
+
+    <UseCaseName>Retrieve Lost Password</UseCaseName>
+
+    <UseCaseNumber>UC002</UseCaseNumber>
+
+    <UseCaseAuthor>Jim Lavin</UseCaseAuthor>
+
+    <LastRevised>11/10/2003</LastRevised>
+
+    <Summary>
+
+      <![CDATA[Process used to recover a lost user password. The 
+
+       password is reset and then sent via email.]]>
+
+    </Summary>
+
+    <Actors>
+
+      <Actor>Sender</Actor>
+
+      <Actor>Delivery Clerk</Actor>
+
+      <Actor>Courier</Actor>
+
+      <Actor>SuD</Actor>
+
+      <Actor>DBMS</Actor>
+
+    </Actors>
+
+    <Preconditions>
+
+      <Precondition>
+
+        <![CDATA[The user must have an account on the System.]]>
+
+      </Precondition>
+
+    </Preconditions>
+
+    <BasicCourse>
+
+      <InitializationSteps>
+
+        <InitializationStep>
+
+          <![CDATA[The user has entered an invalid password and has clicked 
+
+           on the link to retrieve a lost password.]]>
+
+        </InitializationStep>
+
+      </InitializationSteps>
+
+      <ProcessSteps>
+
+        <ProcessStep>
+
+          <![CDATA[The user enters his/her email address and clicks on 
+
+           the submit icon.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD looks up the email address.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The user clicks on the Submit icon.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD generates a new password.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD updates the user's record in the User Table]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD emails the new password to the user.]]>
+
+        </ProcessStep>
+
+      </ProcessSteps>
+
+      <TerminationSteps>
+
+        <TerminationStep>
+
+          <![CDATA[The SuD has found the user and sent a new password 
+
+           to the user.]]>
+
+        </TerminationStep>
+
+      </TerminationSteps>
+
+    </BasicCourse>
+
+    <Exceptions>
+
+      <Exception>
+
+        <![CDATA[The user did not enter an email address. The SuD 
+
+         redisplays the web page with an error indicating the field is 
+
+         required.]]>
+
+      </Exception>
+
+      <Exception>
+
+        <![CDATA[The SuD could not find the email address entered. The SuD 
+
+         redisplays the web page with an error page indicating the email 
+
+         address was not found.]]>
+
+      </Exception>
+
+    </Exceptions>
+
+    <Postconditions>
+
+      <Postcondition>
+
+        <![CDATA[The user's password has been set to a temporary password and 
+
+it has been emailed to the user.]]>
+
+      </Postcondition>
+
+    </Postconditions>
+
+    <GUIsReferenced>
+
+      <Screen>Retrieve Lost Password Page</Screen>
+
+    </GUIsReferenced>
+
+    <SystemInterfaces>
+
+      <SystemInterface>SMTP Server</SystemInterface>
+
+      <SystemInterface>DBMS</SystemInterface>
+
+    </SystemInterfaces>
+
+    <DBMSInterfaces>
+
+      <DBMSInterface>User Table</DBMSInterface>
+
+    </DBMSInterfaces>
+
+    <Issues />
+
+    <Assumptions>
+
+      <Assumption>
+
+        <![CDATA[All users who access the system will have access to a 
+
+         web browser.]]>
+
+      </Assumption>
+
+    </Assumptions>
+
+  </UseCase>
+
+</UseCases>
+
+</Doc>
+
+I then created the Text Template below to process the XML Data File and create an HTML document.
+The Text Template iterates through each UseCase and its sub-elements and then uses a switch statement based on the element name to emit the desired output. 
+I handle embedded elements in the same way, first I iterate through the sub-elements and then use a switch statement to emit the desired output. 
+You can use this same template to generate any type of document output by replacing the HTML with the formatting required by the document specification.
+
+The XMLDirective line is used to load the XMLDirectiveProcessor class and use it to load and access the DOM. The Class gives you access to the document via the Document0 property.
+You can then use any XmlDocument processing code you want to process the document.
+
+If you want to debug your template, remove the // from line 7 and it will cause the system to break and allow you to step through your template in the Visual Studio Debugger.
+This is a great resource if you are having problems with your template's output. Once you get the debugger started you can set breakpoints and watches, just like with your normal code.
+
+
+<#@ assembly name="System.Xml" #>
+<#@ template debug="true" #>
+<#@ output extension=".html" #>
+<# //This will call the custom directive processor. #>
+<#@ XMLDirective Processor="XMLDirectiveProcessor" FileName="<InsertPath>\UseCases.xml" #>
+<# //Uncomment this line if you want to see the generated transformation class. #>
+<# //System.Diagnostics.Debugger.Break(); #>
+<# //This will use the results of the directive processor. #>
+<# //The directive processor has read the XML and stored it in Document0. #>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+<title>Use Case</title>
+</head>
+<body lang="en-us">
+
+<#
+//Get the root UseCases node
+XmlNode node = Document0.DocumentElement.SelectSingleNode("UseCases");
+// iterate through each child UseCase
+foreach (XmlNode member in node.ChildNodes)
+{
+#>
+<p>
+<table border="1" cellspacing="0" cellpadding="5" width="800" >
+<thead>
+<tr>
+<td colspan="2" valign="top" align="center">
+<p><strong>USE CASE</strong></p>
+</td>
+</tr>
+</thead>
+
+<#
+// iterate through each child element of the use case
+foreach (XmlNode child in member.ChildNodes)
+{
+// emit different output based on the child element
+switch(child.Name)
+{
+case "Project":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Project:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "UseCaseName":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Name:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "UseCaseNumber":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Number:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "UseCaseAuthor":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Author:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "LastRevised":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Last Revised:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "Summary":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Summary:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+<# Write(child.InnerText); #>
+</p>
+</td>
+</tr>
+
+<#
+break;
+case "Actors":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Actors:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through the child elements
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "Preconditions":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Preconditions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through the child elements
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "BasicCourse":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Basic Course:</strong></p>
+</td>
+<td valign="top">
+<p>&nbsp;</p>
+</td>
+</tr>
+
+<#
+// iterate through the child elements
+foreach(XmlNode childnode in child.ChildNodes)
+{
+// emit different output based on the child element name
+switch(childnode.Name)
+{
+case "InitializationSteps":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Initialization Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode step in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(step.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "ProcessSteps":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Process Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode step in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(step.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "TerminationSteps":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Termination Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode step in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(step.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+}
+}
+break;
+case "Exceptions":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Exceptions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "Postconditions":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Postconditions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "ScreensReferenced":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Screens Referenced:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "SystemInterfaces":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>System Interfaces:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "DBMSInterfaces":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>DBMS Interfaces:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+}
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "Issues":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Issues:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child issue
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<#
+// iterate through each child element within the issue
+foreach(XmlNode issue in childnode.ChildNodes)
+{
+// emit different output based on the element name
+switch(issue.Name)
+{
+case "Status":
+Write("{0,11}: {1}<br/>", "Status", issue.InnerText);
+break;
+case "OpenDate":
+Write("{0,11}: {1}<br/>", "Open Date", issue.InnerText);
+break;
+case "CloseDate":
+Write("{0,11}: {1}<br/>", "Close Date", issue.InnerText);
+break;
+case "Owner":
+Write("{0,11}: {1}<br/>", "Owner", issue.InnerText);
+break;
+case "Title":
+Write("{0,11}: {1}<br/>", "Title", issue.InnerText);
+break;
+case "Description":
+Write("{0,11}: {1}<br/>", "Description", issue.InnerText);
+break;
+case "Comments":
+Write("{0,11}:<br/>", "Comments");
+// iterate through each comment
+foreach(XmlNode comment in issue.ChildNodes)
+{
+// iterate through each element of the child
+foreach(XmlNode innercomment in comment.ChildNodes)
+{
+// emit different output based on the element name
+switch(innercomment.Name)
+{
+case "Commenter":
+Write("{0,11}: {1}<br/>", "Commenter", innercomment.InnerText);
+break;
+case "DateEntered":
+Write("{0,11}: {1}<br/>", "DateEntered", innercomment.InnerText);
+break;
+case "CommentText":
+Write("{0,11}: {1}<br/><br/>", "Comment", innercomment.InnerText);
+break;
+} // end comment element switch
+} // end comment element foreach
+} // end comment foreach
+break;
+} // end issue element switch
+} // end issue element foreach
+#>
+
+</li>
+<#
+} // end issues child foreach
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+case "Assumptions":
+#>
+
+<tr>
+<td valign="top">
+<p><strong>Assumptions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+<#
+// iterate through each child element
+foreach(XmlNode childnode in child.ChildNodes)
+{
+#>
+
+<li>
+<# Write(childnode.InnerText); #>
+
+</li>
+<#
+} // end assumptions child foreach
+#>
+
+</ol>
+</td>
+</tr>
+
+<#
+break;
+} // end UseCaseElement switch
+} // end UseCaseElement foreach
+
+#>
+</table>
+<p>&nbsp;</p>
+</p>
+
+<#
+} // end UseCase foreach
+#>
+
+</body>
+</html>
+
+The Custom Directive Processor and Text Template above is just one way you can reuse non-code artifacts within your Software Factory. To me this is a very important part of a Software Factory. And I believe a Software Factory should include all of the artifacts that relate to your Software Product Line or Framework, not just the code.
+
+Share this:
+
+    Share
+
+    Comments
+    Comments
+    Trackbacks
+
+There hasent been any comments made with wordpress so far on this post.

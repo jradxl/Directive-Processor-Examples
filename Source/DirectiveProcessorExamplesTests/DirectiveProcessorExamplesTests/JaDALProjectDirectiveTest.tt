@@ -1,0 +1,17 @@
+﻿<#@ template  debug="true" hostSpecific="true" #>
+<#@ output extension=".cs" #>
+<#@ ProjectFile Processor="JaDALProjectDirective" FileName="DirectiveProcessorExamplesTests.csproj" #>
+//Objective : List the files included in the project file passed as a parameter above
+//
+//The Assembly contains a class called VsProjectFile.cs which is loaded with the files.
+//The DirectiveProcesser adds a Property of VsProjectFile type, which allows us to access
+//the method GetAllFiles().
+<#
+	var files = ProjectFile.GetAllFiles();
+	foreach(var file in files)
+    {
+#>
+	//  <#= file #>
+<#
+    }
+#>

@@ -1,0 +1,437 @@
+﻿<?xml version=“1.0“ encoding=“utf-8“ ?>
+
+<Doc>
+
+<UseCases>
+
+  <UseCase>
+
+    <Project>Delivery Service</Project>
+
+    <UseCaseName>Login to Account</UseCaseName>
+
+    <UseCaseNumber>UC001</UseCaseNumber>
+
+    <UseCaseAuthor>Jim Lavin</UseCaseAuthor>
+
+    <LastRevised>11/10/2003</LastRevised>
+
+    <Summary>
+
+      <![CDATA[Used to authenticate and identify the user with the web 
+
+      application.]]>
+
+    </Summary>
+
+    <Actors>
+
+      <Actor>Sender</Actor>
+
+      <Actor>Delivery Clerk</Actor>
+
+      <Actor>Courier</Actor>
+
+      <Actor>SuD</Actor>
+
+      <Actor>DBMS</Actor>
+
+    </Actors>
+
+    <Preconditions>
+
+      <Precondition>
+
+        <![CDATA[The user's information must exist in the DBMS.]]>
+
+      </Precondition>
+
+    </Preconditions>
+
+    <BasicCourse>
+
+      <InitializationSteps>
+
+        <InitializationStep>
+
+          <![CDATA[The user navigates to the main web page.]]>
+
+        </InitializationStep>
+
+      </InitializationSteps>
+
+      <ProcessSteps>
+
+        <ProcessStep>
+
+          <![CDATA[The user enters his/her email address in the Email field.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The user enters his/her password in the Password field.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The user clicks on the Submit icon.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD validates that the email address and password 
+
+           have been entered.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD queries the User Table for the user credentials.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD creates an instance of a User object stores it in the 
+
+           Session State.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD displays the message "Welcome, User Name" in place of 
+
+           the login fields.]]>
+
+        </ProcessStep>
+
+      </ProcessSteps>
+
+      <TerminationSteps>
+
+        <TerminationStep>
+
+          <![CDATA[The SuD updates the user menu with appropriate menu options.]]>
+
+        </TerminationStep>
+
+      </TerminationSteps>
+
+    </BasicCourse>
+
+    <Exceptions>
+
+      <Exception>
+
+        <![CDATA[Either the email address or password has not been entered. The 
+
+         SuD redisplays the web page with an error indicating the missing 
+
+         field.]]>
+
+      </Exception>
+
+      <Exception>
+
+        <![CDATA[The SuD cannot validate the user credentials. The SuD 
+
+         redirects the user to an error page indicating the information 
+
+         that is incorrect.]]>
+
+      </Exception>
+
+    </Exceptions>
+
+    <Postconditions>
+
+      <Postcondition>
+
+        <![CDATA[A valid user object has been stored to the Session State.]]>
+
+      </Postcondition>
+
+      <Postcondition>
+
+        <![CDATA[The welcome message is displayed.]]>
+
+      </Postcondition>
+
+      <Postcondition>
+
+        <![CDATA[The proper menu is displayed for the user.]]>
+
+      </Postcondition>
+
+    </Postconditions>
+
+    <ScreensReferenced>
+
+      <Screen>Login Page</Screen>
+
+    </ScreensReferenced>
+
+    <SystemInterfaces>
+
+      <SystemInterface>DBMS</SystemInterface>
+
+    </SystemInterfaces>
+
+    <DBMSInterfaces>
+
+      <DBMSInterface>User Table</DBMSInterface>
+
+    </DBMSInterfaces>
+
+    <Issues>
+
+      <Issue>
+
+        <Status>Closed</Status>
+
+        <OpenDate>11/01/2003</OpenDate>
+
+        <CloseDate>11/02/2003</CloseDate>
+
+        <Owner>Jim Lavin</Owner>
+
+        <Title>Need to add fields to User Table</Title>
+
+        <Description>
+
+          <![CDATA[Need to add fields for the user's email address and 
+
+           password to the user table along with the appropriate indexes.]]>
+
+        </Description>
+
+        <Comments>
+
+          <Comment>
+
+            <Commenter>Jim Lavin</Commenter>
+
+            <DateEntered>11/02/2003</DateEntered>
+
+            <CommentText>
+
+              <![CDATA[Added the requested fields to the user table 
+
+               definition.]]>
+
+            </CommentText>
+
+          </Comment>
+
+        </Comments>
+
+      </Issue>
+
+    </Issues>
+
+    <Assumptions>
+
+      <Assumption>
+
+        <![CDATA[All users who access the system will have access 
+
+         to a web browser.]]>
+
+      </Assumption>
+
+    </Assumptions>
+
+  </UseCase>
+
+  <UseCase>
+
+    <Project>Delivery Service</Project>
+
+    <UseCaseName>Retrieve Lost Password</UseCaseName>
+
+    <UseCaseNumber>UC002</UseCaseNumber>
+
+    <UseCaseAuthor>Jim Lavin</UseCaseAuthor>
+
+    <LastRevised>11/10/2003</LastRevised>
+
+    <Summary>
+
+      <![CDATA[Process used to recover a lost user password. The 
+
+       password is reset and then sent via email.]]>
+
+    </Summary>
+
+    <Actors>
+
+      <Actor>Sender</Actor>
+
+      <Actor>Delivery Clerk</Actor>
+
+      <Actor>Courier</Actor>
+
+      <Actor>SuD</Actor>
+
+      <Actor>DBMS</Actor>
+
+    </Actors>
+
+    <Preconditions>
+
+      <Precondition>
+
+        <![CDATA[The user must have an account on the System.]]>
+
+      </Precondition>
+
+    </Preconditions>
+
+    <BasicCourse>
+
+      <InitializationSteps>
+
+        <InitializationStep>
+
+          <![CDATA[The user has entered an invalid password and has clicked 
+
+           on the link to retrieve a lost password.]]>
+
+        </InitializationStep>
+
+      </InitializationSteps>
+
+      <ProcessSteps>
+
+        <ProcessStep>
+
+          <![CDATA[The user enters his/her email address and clicks on 
+
+           the submit icon.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD looks up the email address.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The user clicks on the Submit icon.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD generates a new password.]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD updates the user's record in the User Table]]>
+
+        </ProcessStep>
+
+        <ProcessStep>
+
+          <![CDATA[The SuD emails the new password to the user.]]>
+
+        </ProcessStep>
+
+      </ProcessSteps>
+
+      <TerminationSteps>
+
+        <TerminationStep>
+
+          <![CDATA[The SuD has found the user and sent a new password 
+
+           to the user.]]>
+
+        </TerminationStep>
+
+      </TerminationSteps>
+
+    </BasicCourse>
+
+    <Exceptions>
+
+      <Exception>
+
+        <![CDATA[The user did not enter an email address. The SuD 
+
+         redisplays the web page with an error indicating the field is 
+
+         required.]]>
+
+      </Exception>
+
+      <Exception>
+
+        <![CDATA[The SuD could not find the email address entered. The SuD 
+
+         redisplays the web page with an error page indicating the email 
+
+         address was not found.]]>
+
+      </Exception>
+
+    </Exceptions>
+
+    <Postconditions>
+
+      <Postcondition>
+
+        <![CDATA[The user's password has been set to a temporary password and it has been emailed to the user.]]>
+
+      </Postcondition>
+
+    </Postconditions>
+
+    <GUIsReferenced>
+
+      <Screen>Retrieve Lost Password Page</Screen>
+
+    </GUIsReferenced>
+
+    <SystemInterfaces>
+
+      <SystemInterface>SMTP Server</SystemInterface>
+
+      <SystemInterface>DBMS</SystemInterface>
+
+    </SystemInterfaces>
+
+    <DBMSInterfaces>
+
+      <DBMSInterface>User Table</DBMSInterface>
+
+    </DBMSInterfaces>
+
+    <Issues />
+
+    <Assumptions>
+
+      <Assumption>
+
+        <![CDATA[All users who access the system will have access to a 
+
+         web browser.]]>
+
+      </Assumption>
+
+    </Assumptions>
+
+  </UseCase>
+
+</UseCases>
+
+</Doc>

@@ -1,0 +1,755 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+<title>Use Case</title>
+</head>
+<body lang="en-us">
+
+<p>
+<table border="1" cellspacing="0" cellpadding="5" width="800" >
+<thead>
+<tr>
+<td colspan="2" valign="top" align="center">
+<p><strong>USE CASE</strong></p>
+</td>
+</tr>
+</thead>
+
+
+<tr>
+<td valign="top">
+<p><strong>Project:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+Delivery Service</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Name:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+Login to Account</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Number:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+UC001</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Author:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+Jim Lavin</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Last Revised:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+11/10/2003</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Summary:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+Used to authenticate and identify the user with the web 
+
+      application.</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Actors:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+Sender
+</li>
+
+<li>
+Delivery Clerk
+</li>
+
+<li>
+Courier
+</li>
+
+<li>
+SuD
+</li>
+
+<li>
+DBMS
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Preconditions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user's information must exist in the DBMS.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Basic Course:</strong></p>
+</td>
+<td valign="top">
+<p>&nbsp;</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Initialization Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user navigates to the main web page.
+</li>
+
+<li>
+The user enters his/her email address in the Email field.The user enters his/her password in the Password field.The user clicks on the Submit icon.The SuD validates that the email address and password 
+
+           have been entered.The SuD queries the User Table for the user credentials.The SuD creates an instance of a User object stores it in the 
+
+           Session State.The SuD displays the message "Welcome, User Name" in place of 
+
+           the login fields.
+</li>
+
+<li>
+The SuD updates the user menu with appropriate menu options.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Process Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user navigates to the main web page.
+</li>
+
+<li>
+The user enters his/her email address in the Email field.The user enters his/her password in the Password field.The user clicks on the Submit icon.The SuD validates that the email address and password 
+
+           have been entered.The SuD queries the User Table for the user credentials.The SuD creates an instance of a User object stores it in the 
+
+           Session State.The SuD displays the message "Welcome, User Name" in place of 
+
+           the login fields.
+</li>
+
+<li>
+The SuD updates the user menu with appropriate menu options.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Termination Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user navigates to the main web page.
+</li>
+
+<li>
+The user enters his/her email address in the Email field.The user enters his/her password in the Password field.The user clicks on the Submit icon.The SuD validates that the email address and password 
+
+           have been entered.The SuD queries the User Table for the user credentials.The SuD creates an instance of a User object stores it in the 
+
+           Session State.The SuD displays the message "Welcome, User Name" in place of 
+
+           the login fields.
+</li>
+
+<li>
+The SuD updates the user menu with appropriate menu options.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Exceptions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+Either the email address or password has not been entered. The 
+
+         SuD redisplays the web page with an error indicating the missing 
+
+         field.
+</li>
+
+<li>
+The SuD cannot validate the user credentials. The SuD 
+
+         redirects the user to an error page indicating the information 
+
+         that is incorrect.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Postconditions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+A valid user object has been stored to the Session State.
+</li>
+
+<li>
+The welcome message is displayed.
+</li>
+
+<li>
+The proper menu is displayed for the user.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Screens Referenced:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+Login Page
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>System Interfaces:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+DBMS
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>DBMS Interfaces:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+User Table
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Issues:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+     Status: Closed<br/>  Open Date: 11/01/2003<br/> Close Date: 11/02/2003<br/>      Owner: Jim Lavin<br/>      Title: Need to add fields to User Table<br/>Description: Need to add fields for the user's email address and 
+
+           password to the user table along with the appropriate indexes.<br/>   Comments:<br/>  Commenter: Jim Lavin<br/>DateEntered: 11/02/2003<br/>    Comment: Added the requested fields to the user table 
+
+               definition.<br/><br/>
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Assumptions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+All users who access the system will have access 
+
+         to a web browser.
+</li>
+
+</ol>
+</td>
+</tr>
+
+</table>
+<p>&nbsp;</p>
+</p>
+
+<p>
+<table border="1" cellspacing="0" cellpadding="5" width="800" >
+<thead>
+<tr>
+<td colspan="2" valign="top" align="center">
+<p><strong>USE CASE</strong></p>
+</td>
+</tr>
+</thead>
+
+
+<tr>
+<td valign="top">
+<p><strong>Project:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+Delivery Service</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Name:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+Retrieve Lost Password</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Number:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+UC002</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Use Case Author:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+Jim Lavin</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Last Revised:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+11/10/2003</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Summary:</strong></p>
+</td>
+<td valign="top">
+<p>
+
+Process used to recover a lost user password. The 
+
+       password is reset and then sent via email.</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Actors:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+Sender
+</li>
+
+<li>
+Delivery Clerk
+</li>
+
+<li>
+Courier
+</li>
+
+<li>
+SuD
+</li>
+
+<li>
+DBMS
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Preconditions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user must have an account on the System.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Basic Course:</strong></p>
+</td>
+<td valign="top">
+<p>&nbsp;</p>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Initialization Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user has entered an invalid password and has clicked 
+
+           on the link to retrieve a lost password.
+</li>
+
+<li>
+The user enters his/her email address and clicks on 
+
+           the submit icon.The SuD looks up the email address.The user clicks on the Submit icon.The SuD generates a new password.The SuD updates the user's record in the User TableThe SuD emails the new password to the user.
+</li>
+
+<li>
+The SuD has found the user and sent a new password 
+
+           to the user.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Process Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user has entered an invalid password and has clicked 
+
+           on the link to retrieve a lost password.
+</li>
+
+<li>
+The user enters his/her email address and clicks on 
+
+           the submit icon.The SuD looks up the email address.The user clicks on the Submit icon.The SuD generates a new password.The SuD updates the user's record in the User TableThe SuD emails the new password to the user.
+</li>
+
+<li>
+The SuD has found the user and sent a new password 
+
+           to the user.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Termination Steps:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user has entered an invalid password and has clicked 
+
+           on the link to retrieve a lost password.
+</li>
+
+<li>
+The user enters his/her email address and clicks on 
+
+           the submit icon.The SuD looks up the email address.The user clicks on the Submit icon.The SuD generates a new password.The SuD updates the user's record in the User TableThe SuD emails the new password to the user.
+</li>
+
+<li>
+The SuD has found the user and sent a new password 
+
+           to the user.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Exceptions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user did not enter an email address. The SuD 
+
+         redisplays the web page with an error indicating the field is 
+
+         required.
+</li>
+
+<li>
+The SuD could not find the email address entered. The SuD 
+
+         redisplays the web page with an error page indicating the email 
+
+         address was not found.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Postconditions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+The user's password has been set to a temporary password and it has been emailed to the user.
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>System Interfaces:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+SMTP Server
+</li>
+
+<li>
+DBMS
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>DBMS Interfaces:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+User Table
+</li>
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Issues:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+</ol>
+</td>
+</tr>
+
+
+<tr>
+<td valign="top">
+<p><strong>Assumptions:</strong></p>
+</td>
+<td valign="top">
+<ol>
+
+
+<li>
+All users who access the system will have access to a 
+
+         web browser.
+</li>
+
+</ol>
+</td>
+</tr>
+
+</table>
+<p>&nbsp;</p>
+</p>
+
+
+</body>
+</html>

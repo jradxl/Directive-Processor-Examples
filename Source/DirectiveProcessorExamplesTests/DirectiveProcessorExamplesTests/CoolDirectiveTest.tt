@@ -1,0 +1,37 @@
+﻿<#@ assembly name="System.Xml" #>
+<#@ template debug="true" #>
+<#@ output extension=".txt" #>
+
+<#  //This will call the custom directive processor. This exhanced version of Microsoft's example takes a relative path#>
+<#@ CoolDirective Processor="CoolDirective" FileName="CoolDirectiveData.xml" #>
+
+<#  //Uncomment this line if you want to see the generated transformation class. #>
+<#  //System.Diagnostics.Debugger.Break(); #>
+
+<#  //This will use the results of the directive processor. #>
+<#  //The directive processor has read the XML and stored it in Document0. #>
+<#
+    XmlNode node = Document0.DocumentElement.SelectSingleNode("members");
+
+    foreach (XmlNode member in node.ChildNodes)
+    {
+        XmlNode name = member.Attributes.GetNamedItem("name");
+        WriteLine("{0,7}:  {1}", "Name", name.Value);
+
+        foreach (XmlNode comment in member.ChildNodes)
+        {
+            WriteLine("{0,7}:  {1}", comment.Name, comment.InnerText);
+        }
+        WriteLine("");
+    }
+#>
+
+<#  //You can call the directive processor again and pass it a different file. #>
+<# //@ CoolDirective Processor="CustomDirectiveProcessor" FileName="<YOUR PATH>\<Your Second File>" #>
+
+<#  //To use the results of the second directive call, use Document1. #>
+<#
+    //XmlNode node2 = Document1.DocumentElement.SelectSingleNode("members");
+
+    //...
+#>

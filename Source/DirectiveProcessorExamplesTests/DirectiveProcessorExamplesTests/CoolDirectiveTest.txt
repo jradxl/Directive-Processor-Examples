@@ -1,0 +1,33 @@
+﻿
+
+
+   Name:  T:SomeClass
+summary:  Class level summary documentation goes here.
+remarks:  Longer comments can be associated with a type or member through the remarks tag
+
+   Name:  F:SomeClass.m_Name
+summary:  Store for the name property
+
+   Name:  M:SomeClass.#ctor
+summary:  The class constructor.
+
+   Name:  M:SomeClass.SomeMethod(System.String)
+summary:  Description for SomeMethod.
+  param:  Parameter description for s goes here
+seealso:  You can use the cref attribute on any tag to reference a type or member and the compiler will check that the reference exists.
+
+   Name:  M:SomeClass.SomeOtherMethod
+summary:  Some other method.
+returns:  Return results are described through the returns tag.
+seealso:  Notice the use of the cref attribute to reference a specific method
+
+   Name:  M:SomeClass.Main(System.String[])
+summary:  The entry point for the application.
+  param:  A list of command line arguments
+
+   Name:  P:SomeClass.Name
+summary:  Name property
+  value:  A value tag is used to describe the property value
+
+
+
